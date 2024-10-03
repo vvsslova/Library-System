@@ -7,6 +7,7 @@ import com.github.vvsslova.exception.BookNotFoundException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.awt.print.Book;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,13 +137,13 @@ public class BookService {
      * @param title  название
      * @param author автор
      */
-    protected void searchBooks(String title, String author) {
+    protected List<BookDto> searchBooks(String title, String author) {
         List<BookDto> listOfBookDtos = new ArrayList<>(books.values());
         List<BookDto> bookDtoList = listOfBookDtos.stream()
                 .filter(b -> (title == null || b.getTitle().equalsIgnoreCase(title)) &&
                         (author == null || b.getAuthor().equalsIgnoreCase(author)))
                 .collect(Collectors.toList());
-        log.info(bookDtoList.toString());
+        return bookDtoList;
     }
 
     /**

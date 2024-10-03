@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -86,7 +87,7 @@ public class LibraryService {
      * @param author автор книги
      */
     public void printFoundBook(String title, String author) {
-        bookService.searchBooks(title, author);
+        log.info(bookService.searchBooks(title, author).toString());
     }
 
     /**
@@ -130,16 +131,19 @@ public class LibraryService {
     /**
      * Выдача книги
      *
-     * @param bookDto выдаваемая книга
-     * @param userDto получающий пользователь
-     * @param period  период
+     * @param title  название выдаваемой книги
+     * @param author автор выдаваемой книги
+     * @param userID получающий пользователь
+     * @param period период
      */
-    public void lendBook(BookDto bookDto, UserDto userDto, int period) {
+    public void lendBook(String title, String author, String userID, int period) {
+        List<BookDto> listLendingBook = bookService.searchBooks(title, author);
+        BookDto lendingBook = listLendingBook.get(0);
         try {
-            checkBookLending(bookDto.getID());
+            checkBookLending(lendingBook.getID());
             LocalDate returnDate = LocalDate.now().plusDays(period);
-            lendingJournal.put(bookDto.getID(), new Journal(userDto.getID(), returnDate));
-            log.info("Книга {} выдана пользователю", bookDto.getTitle());
+            lendingJournal.put(userID, new Journal(lendingBook.getID(), returnDate));
+            log.info("Книга {} выдана пользователю", lendingBook.getTitle());
         } catch (BookAlreadyLendException e1) {
             log.info(e1.getMessage());
         }
@@ -148,13 +152,15 @@ public class LibraryService {
     /**
      * Возврат книги
      *
-     * @param bookDto возвращаемая книга
-     * @param userDto возвращающий пользователь
+     * @param title  название возвращаемой книги
+     * @param userID возвращающий пользователь
      */
-    public void returnBook(BookDto bookDto, UserDto userDto) {
-        checkLendingPeriodDates(bookDto.getID());
-        lendingJournal.remove(bookDto.getID());
-        log.info("Книга {} возвращена в библотеку", bookDto.getTitle());
+    public void returnBook(String title, String userID) {
+        Journal lendingBookJournal = lendingJournal.get(userID);
+        String IDLendingBook = lendingBookJournal.getBookID();
+        checkLendingPeriodDates(IDLendingBook);
+        lendingJournal.remove(IDLendingBook);
+        log.info("Книга {} возвращена в библотеку", title);
     }
 
     /**
@@ -212,12 +218,12 @@ public class LibraryService {
 
     @Getter
     private static class Journal {
-        private final String userID;
+        private final String bookID;
         private final LocalDate returnDate;
 
-        public Journal(String userID, LocalDate returnDate) {
+        public Journal(String bookID, LocalDate returnDate) {
             this.returnDate = returnDate;
-            this.userID = userID;
+            this.bookID = bookID;
         }
     }
 }

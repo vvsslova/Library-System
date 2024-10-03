@@ -26,11 +26,11 @@ public class App {
         libraryService1.addBook(bookDto1);
         BookDto bookDto2 = new BookDto("Flowers for Algernon", "Daniel Kie", BookGenre.DRAMA);
         libraryService1.addBook(bookDto2);
-        libraryService1.changeBookAuthor(bookDto2, "Keyes");
+        libraryService1.changeBookAuthor(bookDto2, "Daniel Keyes");
         libraryService1.printAllBooks();
         libraryService1.printFoundBook("Flowers for Algernon", null);
         libraryService1.printFoundBook(null, "Jane Osten");
-        libraryService1.lendBook(bookDto2, userDto1, 14);
-        libraryService1.returnBook(bookDto2, userDto1);
+        libraryService1.lendBook("Flowers for Algernon","Daniel Keyes", userDto1.getID(),14 );
+        libraryService1.returnBook("Flowers for Algernon", userDto1.getID());
     }
 }
