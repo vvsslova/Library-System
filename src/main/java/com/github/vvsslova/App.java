@@ -30,7 +30,9 @@ public class App {
         libraryService1.printAllBooks();
         libraryService1.printFoundBook("Flowers for Algernon", null);
         libraryService1.printFoundBook(null, "Jane Osten");
-        libraryService1.lendBook("Flowers for Algernon","Daniel Keyes", userDto1.getID(),14 );
+        libraryService1.lendBook("Flowers for Algernon", "Daniel Keyes", userDto1.getID());
+        libraryService1.lendBook("Pride and Prejudice", "Jane Osten", userDto1.getID());
+        libraryService1.returnBook("Pride and Prejudice",userDto1.getID());
         libraryService1.returnBook("Flowers for Algernon", userDto1.getID());
     }
 }

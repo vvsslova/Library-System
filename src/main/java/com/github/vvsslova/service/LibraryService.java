@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -134,18 +135,17 @@ public class LibraryService {
      * @param title  название выдаваемой книги
      * @param author автор выдаваемой книги
      * @param userID получающий пользователь
-     * @param period период
      */
-    public void lendBook(String title, String author, String userID, int period) {
+    public void lendBook(String title, String author, String userID) {
         List<BookDto> listLendingBook = bookService.searchBooks(title, author);
         BookDto lendingBook = listLendingBook.get(0);
         try {
             checkBookLending(lendingBook.getID());
-            LocalDate returnDate = LocalDate.now().plusDays(period);
-            lendingJournal.put(userID, new Journal(lendingBook.getID(), returnDate));
+            LocalDate returnDate = LocalDate.now().plusDays(14);
+            lendingJournal.put(lendingBook.getID(), new Journal(userID, lendingBook.getTitle(), returnDate));
             log.info("Книга {} выдана пользователю", lendingBook.getTitle());
-        } catch (BookAlreadyLendException e1) {
-            log.info(e1.getMessage());
+        } catch (BookAlreadyLendException e) {
+            log.info(e.getMessage());
         }
     }
 
@@ -156,11 +156,16 @@ public class LibraryService {
      * @param userID возвращающий пользователь
      */
     public void returnBook(String title, String userID) {
-        Journal lendingBookJournal = lendingJournal.get(userID);
-        String IDLendingBook = lendingBookJournal.getBookID();
-        checkLendingPeriodDates(IDLendingBook);
-        lendingJournal.remove(IDLendingBook);
-        log.info("Книга {} возвращена в библотеку", title);
+        Iterator<Map.Entry<String, Journal>> iterator = lendingJournal.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Journal> entry = iterator.next();
+            if (entry.getValue().bookTitle.equals(title) &&
+                    entry.getValue().userID.equals(userID)) {
+                checkLendingPeriodDates(entry.getKey());
+                iterator.remove();
+                log.info("Книга {} возвращена в библотеку", title);
+            }
+        }
     }
 
     /**
@@ -171,10 +176,12 @@ public class LibraryService {
     private void checkLendingPeriodDates(String ID) {
         LocalDate today = LocalDate.now();
         for (Map.Entry<String, Journal> entry : lendingJournal.entrySet()) {
-            if (today.isAfter(entry.getValue().returnDate)) {
-                log.info("Книга просрочена пользователем !");
-            } else {
-                log.info("Книга возвращена в срок");
+            if (entry.getKey().equals(ID)) {
+                if (today.isAfter(entry.getValue().returnDate)) {
+                    log.info("Книга {} просрочена пользователем !", entry.getValue().bookTitle);
+                } else {
+                    log.info("Книга {} возвращена в срок", entry.getValue().bookTitle);
+                }
             }
         }
     }
@@ -218,12 +225,14 @@ public class LibraryService {
 
     @Getter
     private static class Journal {
-        private final String bookID;
+        private final String userID;
+        private final String bookTitle;
         private final LocalDate returnDate;
 
-        public Journal(String bookID, LocalDate returnDate) {
+        public Journal(String userID, String bookTitle, LocalDate returnDate) {
             this.returnDate = returnDate;
-            this.bookID = bookID;
+            this.userID = userID;
+            this.bookTitle = bookTitle;
         }
     }
 }
