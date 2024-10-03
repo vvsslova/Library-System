@@ -1,5 +1,6 @@
-package com.github.vvsslova;
+package com.github.vvsslova.dto;
 
+import com.github.vvsslova.ENUM.BookGenre;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,13 +11,13 @@ import java.util.UUID;
  */
 @Data
 @Slf4j
-public class Book {
+public class BookDto {
     private final String ID;
     private String title;
     private String author;
     private BookGenre bookGenre;
 
-    public Book(String title, String author, BookGenre bookGenre) {
+    public BookDto(String title, String author, BookGenre bookGenre) {
         this.ID = generateId();
         this.title = title;
         this.author = author;
@@ -29,7 +30,6 @@ public class Book {
      * @return ID книги
      */
     private String generateId() {
-        UUID uuid = UUID.randomUUID();
-        return uuid.toString();
+        return UUID.randomUUID().toString();
     }
 }

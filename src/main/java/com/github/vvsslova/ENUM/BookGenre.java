@@ -1,4 +1,4 @@
-package com.github.vvsslova;
+package com.github.vvsslova.ENUM;
 
 /**
  * Класс содержит перечень жанров, которые можно указать при добавлении книги в библиотеку

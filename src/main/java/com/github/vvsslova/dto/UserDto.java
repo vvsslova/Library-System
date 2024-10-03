@@ -1,4 +1,4 @@
-package com.github.vvsslova;
+package com.github.vvsslova.dto;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -10,13 +10,13 @@ import java.util.UUID;
  */
 @Data
 @Slf4j
-public class User {
+public class UserDto {
     private final String ID;
     private String name;
     private String surname;
     private long phoneNumber;
 
-    public User(String name, String surname, long phoneNumber) {
+    public UserDto(String name, String surname, long phoneNumber) {
         this.name = name;
         this.surname = surname;
         this.phoneNumber = phoneNumber;
@@ -29,7 +29,6 @@ public class User {
      * @return ID пользователя
      */
     private String generateId() {
-        UUID uuid = UUID.randomUUID();
-        return uuid.toString();
+        return UUID.randomUUID().toString();
     }
 }
