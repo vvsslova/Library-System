@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 /**
- * Класс проектирует систему библиотеки
+ * Проектирование библиотечной системы
  */
 @Data
 @Slf4j
