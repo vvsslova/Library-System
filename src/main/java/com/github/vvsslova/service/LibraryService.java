@@ -92,7 +92,7 @@ public class LibraryService {
     }
 
     /**
-     * Поиск книги
+     * Вывод найденных книг
      *
      * @param title  название книги
      * @param author автор книги
@@ -133,7 +133,7 @@ public class LibraryService {
                 Journal journal = journalIterator.next();
                 if (journal.userID.equals(userID)) {
                     journalIterator.remove();
-                    log.info("Книги пользователя по техническим причинам возвращены библиотекой!");
+                    log.info("Книга пользователя по техническим причинам возвращена библиотекой!");
                 }
             }
             userService.removeUser(userID);
@@ -176,11 +176,9 @@ public class LibraryService {
      * @param userID ID получающего пользователя
      */
     public void lendBook(String bookID, String userID) {
-        BookDto searchingBook = bookService.getBooks().get(bookID);
-        List<BookDto> listLendingBook = bookService.searchBooks(searchingBook.getTitle(), searchingBook.getAuthor());
-        BookDto lendingBook = listLendingBook.get(0);
+        BookDto lendingBook = bookService.getBooks().get(bookID);
         LocalDate returnDate = LocalDate.now().plusDays(14);
-        lendingJournal.add(new Journal(bookID, userID, lendingBook.getTitle(), returnDate));
+        lendingJournal.add(new Journal(lendingBook.getID(), userID, lendingBook.getTitle(), returnDate));
         log.info("Книга {} выдана пользователю", lendingBook.getTitle());
     }
 
@@ -211,10 +209,12 @@ public class LibraryService {
     private void checkLendingPeriodDates(String bookID) {
         LocalDate today = LocalDate.now();
         for (Journal journalList : lendingJournal) {
-            if (journalList.bookID.equals(bookID) && journalList.returnDate.isBefore(today)) {
-                log.info("Книга {} просрочена пользователем !", journalList.bookTitle);
-            } else {
-                log.info("Книга {} возвращена в срок", journalList.bookTitle);
+            if (journalList.bookID.equals(bookID)) {
+                if (journalList.returnDate.isBefore(today)) {
+                    log.info("Книга {} просрочена пользователем !", journalList.bookTitle);
+                } else {
+                    log.info("Книга {} возвращена в срок", journalList.bookTitle);
+                }
             }
         }
     }
