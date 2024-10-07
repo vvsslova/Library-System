@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Класс описывает взаимодействие с пользователями
+ * Описание взаимодействия с пользователями
  */
 @Slf4j
 @Data
@@ -80,7 +80,7 @@ public class UserService {
     /**
      * Изменение номера телефона
      *
-     * @param userID       ID изменяемого пользователя
+     * @param userID   ID изменяемого пользователя
      * @param newPhone новый номер
      */
     protected void changeUserPhone(String userID, long newPhone) {
@@ -97,7 +97,7 @@ public class UserService {
     /**
      * Изменение пользовательского имени
      *
-     * @param userID      ID пользователя, у которого необходимо изменить имя
+     * @param userID  ID пользователя, у которого необходимо изменить имя
      * @param newName новое имя
      */
     protected void changeUserName(String userID, String newName) {
@@ -114,7 +114,7 @@ public class UserService {
     /**
      * Изменение пользовательской фамилии
      *
-     * @param userID         ID пользователя, у которого необходимо изменить фамилию
+     * @param userID     ID пользователя, у которого необходимо изменить фамилию
      * @param newSurName новая фамилия
      */
     protected void changeUserSurname(String userID, String newSurName) {

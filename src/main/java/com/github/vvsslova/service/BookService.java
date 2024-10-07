@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Класс описывает взаимодействие с книгами
+ * Описание взаимодействия с книгами
  */
 @Slf4j
 @Data
