@@ -1,7 +1,7 @@
 package com.github.vvsslova.exception;
 
 /**
- * Класс описывает исключение, выбрасываемое при попытке добавить уже существующего пользователя
+ * Выбрасывается при попытке добавить уже существующего пользователя
  */
 public class UserAlreadyExistsException extends Exception {
     @Override

@@ -1,19 +1,15 @@
 package com.github.vvsslova.service;
 
-import com.github.vvsslova.ENUM.BookGenre;
+import com.github.vvsslova.constant.BookGenre;
 import com.github.vvsslova.dto.BookDto;
 import com.github.vvsslova.dto.UserDto;
 import com.github.vvsslova.exception.BookAlreadyLendException;
+import com.github.vvsslova.exception.UserLendBookException;
 import lombok.Data;
-
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Класс проектирует систему библиотеки
@@ -24,13 +20,13 @@ public class LibraryService {
     private final String name;
     private final UserService userService;
     private final BookService bookService;
-    private final Map<String, Journal> lendingJournal;
+    private final List<Journal> lendingJournal;
 
     public LibraryService(String name) {
         this.name = name;
         this.userService = new UserService();
         this.bookService = new BookService();
-        this.lendingJournal = new HashMap<>();
+        this.lendingJournal = new LinkedList<>();
     }
 
     /**
@@ -45,40 +41,54 @@ public class LibraryService {
     /**
      * Удаление книги
      *
-     * @param bookDto удаляемая книга
+     * @param bookID ID удаляемой книги
      */
-    public void removeBook(BookDto bookDto) {
-        bookService.removeBook(bookDto);
+    public void removeBook(String bookID) {
+        try {
+            checkBookLending(bookID);
+            bookService.removeBook(bookID);
+        } catch (BookAlreadyLendException e) {
+            log.info("Эта книга выдана пользователям!");
+            Iterator<Journal> journalIterator = lendingJournal.iterator();
+            while (journalIterator.hasNext()) {
+                Journal journal = journalIterator.next();
+                if (journal.bookID.equals(bookID)) {
+                    journalIterator.remove();
+                    log.info("Книга {} по техническим причинам возвращена библиотекой!", journal.getBookTitle());
+                }
+            }
+            bookService.removeBook(bookID);
+        }
     }
 
     /**
      * Изменение автора
      *
-     * @param bookDto   книга, у которой необходимо изменить автора
+     * @param bookID    ID изменяемой книги
      * @param newAuthor новый автор
      */
-    public void changeBookAuthor(BookDto bookDto, String newAuthor) {
-        bookService.changeBookAuthor(bookDto.getID(), newAuthor);
+    public void changeBookAuthor(String bookID, String newAuthor) {
+        bookService.changeBookAuthor(bookID, newAuthor);
     }
 
     /**
      * Изменение названия книги
      *
-     * @param bookDto  книга, у которой необходимо изменить название
+     * @param bookID   ID изменяемой книги
      * @param newTitle новое название
      */
-    public void changeBookTitle(BookDto bookDto, String newTitle) {
-        bookService.changeBookTitle(bookDto.getID(), newTitle);
+    public void changeBookTitle(String bookID, String newTitle) {
+        bookService.changeBookTitle(bookID, newTitle);
     }
 
     /**
      * Изменение жанра
      *
-     * @param bookDto      книга, у которой необходимо изменить жанр
+     * @param bookID       ID изменяемой книги
      * @param newBookGenre новый жанр
      */
-    public void changeBookGenre(BookDto bookDto, BookGenre newBookGenre) {
-        bookService.changeBookGenre(bookDto.getID(), newBookGenre);
+    public void changeBookGenre(String bookID, BookGenre newBookGenre) {
+        bookService.changeBookGenre(bookID, newBookGenre);
     }
 
     /**
@@ -110,21 +120,51 @@ public class LibraryService {
     /**
      * Удаление пользователя
      *
-     * @param userDto удаляемый пользователь
+     * @param userID ID удаляемого пользователя
      */
-    public void removeUser(UserDto userDto) {
-        userService.removeUser(userDto);
+    public void removeUser(String userID) {
+        try {
+            checkUserBookLending(userID);
+            userService.removeUser(userID);
+        } catch (UserLendBookException e) {
+            log.info("Этот пользователь взял книги!");
+            Iterator<Journal> journalIterator = lendingJournal.iterator();
+            while (journalIterator.hasNext()) {
+                Journal journal = journalIterator.next();
+                if (journal.userID.equals(userID)) {
+                    journalIterator.remove();
+                    log.info("Книги пользователя по техническим причинам возвращены библиотекой!");
+                }
+            }
+            userService.removeUser(userID);
+        }
     }
 
     /**
      * Проверка выдачи книги
      *
-     * @param ID ID проверяемой книги
+     * @param bookID ID проверяемой книги
      * @throws BookAlreadyLendException если книга уже выдана
      */
-    private void checkBookLending(String ID) throws BookAlreadyLendException {
-        if (lendingJournal.containsKey(ID)) {
-            throw new BookAlreadyLendException();
+    private void checkBookLending(String bookID) throws BookAlreadyLendException {
+        for (Journal journalList : lendingJournal) {
+            if (journalList.bookID.equals(bookID)) {
+                throw new BookAlreadyLendException();
+            }
+        }
+    }
+
+    /**
+     * Проверка наличия пользователя в журнале выдачи книг перед удалением
+     *
+     * @param userID ID проверяемого пользователя
+     * @throws UserLendBookException в случае, если пользователь взял книги
+     */
+    private void checkUserBookLending(String userID) throws UserLendBookException {
+        for (Journal journalList : lendingJournal) {
+            if (journalList.userID.equals(userID)) {
+                throw new UserLendBookException();
+            }
         }
     }
 
@@ -132,38 +172,33 @@ public class LibraryService {
     /**
      * Выдача книги
      *
-     * @param title  название выдаваемой книги
-     * @param author автор выдаваемой книги
-     * @param userID получающий пользователь
+     * @param bookID ID выдаваемой книги
+     * @param userID ID получающего пользователя
      */
-    public void lendBook(String title, String author, String userID) {
-        List<BookDto> listLendingBook = bookService.searchBooks(title, author);
+    public void lendBook(String bookID, String userID) {
+        BookDto searchingBook = bookService.getBooks().get(bookID);
+        List<BookDto> listLendingBook = bookService.searchBooks(searchingBook.getTitle(), searchingBook.getAuthor());
         BookDto lendingBook = listLendingBook.get(0);
-        try {
-            checkBookLending(lendingBook.getID());
-            LocalDate returnDate = LocalDate.now().plusDays(14);
-            lendingJournal.put(lendingBook.getID(), new Journal(userID, lendingBook.getTitle(), returnDate));
-            log.info("Книга {} выдана пользователю", lendingBook.getTitle());
-        } catch (BookAlreadyLendException e) {
-            log.info(e.getMessage());
-        }
+        LocalDate returnDate = LocalDate.now().plusDays(14);
+        lendingJournal.add(new Journal(bookID, userID, lendingBook.getTitle(), returnDate));
+        log.info("Книга {} выдана пользователю", lendingBook.getTitle());
     }
 
     /**
      * Возврат книги
      *
-     * @param title  название возвращаемой книги
-     * @param userID возвращающий пользователь
+     * @param bookID ID возвращаемой книги
+     * @param userID ID возвращающего пользователя
      */
-    public void returnBook(String title, String userID) {
-        Iterator<Map.Entry<String, Journal>> iterator = lendingJournal.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, Journal> entry = iterator.next();
-            if (entry.getValue().bookTitle.equals(title) &&
-                    entry.getValue().userID.equals(userID)) {
-                checkLendingPeriodDates(entry.getKey());
-                iterator.remove();
-                log.info("Книга {} возвращена в библотеку", title);
+    public void returnBook(String bookID, String userID) {
+        Iterator<Journal> journalIterator = lendingJournal.iterator();
+        while (journalIterator.hasNext()) {
+            Journal journalEntry = journalIterator.next();
+            if (journalEntry.userID.equals(userID) &&
+                    journalEntry.bookID.equals(bookID)) {
+                checkLendingPeriodDates(bookID);
+                journalIterator.remove();
+                log.info("Книга {} возвращена в библотеку", journalEntry.getBookTitle());
             }
         }
     }
@@ -171,17 +206,15 @@ public class LibraryService {
     /**
      * Проверка сроков возврата
      *
-     * @param ID ID проверяемой книги
+     * @param bookID ID проверяемой книги
      */
-    private void checkLendingPeriodDates(String ID) {
+    private void checkLendingPeriodDates(String bookID) {
         LocalDate today = LocalDate.now();
-        for (Map.Entry<String, Journal> entry : lendingJournal.entrySet()) {
-            if (entry.getKey().equals(ID)) {
-                if (today.isAfter(entry.getValue().returnDate)) {
-                    log.info("Книга {} просрочена пользователем !", entry.getValue().bookTitle);
-                } else {
-                    log.info("Книга {} возвращена в срок", entry.getValue().bookTitle);
-                }
+        for (Journal journalList : lendingJournal) {
+            if (journalList.bookID.equals(bookID) && journalList.returnDate.isBefore(today)) {
+                log.info("Книга {} просрочена пользователем !", journalList.bookTitle);
+            } else {
+                log.info("Книга {} возвращена в срок", journalList.bookTitle);
             }
         }
     }
@@ -189,31 +222,31 @@ public class LibraryService {
     /**
      * Изменение номера телефона пользователя
      *
-     * @param userDto  пользователь, у которого необходимо изменить номер
+     * @param userID   ID изменяемого пользователя
      * @param newPhone новый номер
      */
-    public void changeUserPhone(UserDto userDto, long newPhone) {
-        userService.changeUserPhone(userDto.getID(), newPhone);
+    public void changeUserPhone(String userID, long newPhone) {
+        userService.changeUserPhone(userID, newPhone);
     }
 
     /**
      * Изменение имени пользователя
      *
-     * @param userDto пользователь, у которого необходимо изменить имя
+     * @param userID  ID изменяемого пользователя
      * @param newName новое имя
      */
-    public void changeUserName(UserDto userDto, String newName) {
-        userService.changeUserName(userDto.getID(), newName);
+    public void changeUserName(String userID, String newName) {
+        userService.changeUserName(userID, newName);
     }
 
     /**
      * Изменение фамилии пользователя
      *
-     * @param userDto    пользователь, у которого необходимо изменить фамилию
+     * @param userID     ID изменяемого пользователя
      * @param newSurName новая фамилия
      */
-    public void changeUserSurname(UserDto userDto, String newSurName) {
-        userService.changeUserSurname(userDto.getID(), newSurName);
+    public void changeUserSurname(String userID, String newSurName) {
+        userService.changeUserSurname(userID, newSurName);
     }
 
     /**
@@ -223,16 +256,18 @@ public class LibraryService {
         userService.printAllUsers();
     }
 
-    @Getter
+    @Data
     private static class Journal {
         private final String userID;
         private final String bookTitle;
         private final LocalDate returnDate;
+        private final String bookID;
 
-        public Journal(String userID, String bookTitle, LocalDate returnDate) {
+        public Journal(String bookID, String userID, String bookTitle, LocalDate returnDate) {
             this.returnDate = returnDate;
             this.userID = userID;
             this.bookTitle = bookTitle;
+            this.bookID = bookID;
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.github.vvsslova.exception;
 
 /**
- * Класс описывает исключение, выбрасываемое при попытке дать пользователю ранее выданную книгу
+ * Выбрасывается при попытке дать пользователю ранее выданную книгу
  */
 public class BookAlreadyLendException extends Exception {
     @Override

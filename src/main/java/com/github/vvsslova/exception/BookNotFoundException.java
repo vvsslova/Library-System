@@ -1,7 +1,7 @@
 package com.github.vvsslova.exception;
 
 /**
- * Класс описывает исключение, выбрасываемое при попытке удалить несуществующую книгу
+ * Выбрасывается при попытке удалить несуществующую книгу
  */
 public class BookNotFoundException extends Exception {
     @Override

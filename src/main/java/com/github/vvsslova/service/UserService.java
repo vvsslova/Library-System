@@ -41,11 +41,11 @@ public class UserService {
     /**
      * Проверка наличия пользователя
      *
-     * @param ID проверяемый ID
+     * @param userID проверяемый ID
      * @throws UserAlreadyExistsException если пользователь уже существует
      */
-    private void checkUserAbsence(String ID) throws UserAlreadyExistsException {
-        if (users.containsKey(ID)) {
+    private void checkUserAbsence(String userID) throws UserAlreadyExistsException {
+        if (users.containsKey(userID)) {
             throw new UserAlreadyExistsException();
         }
     }
@@ -53,11 +53,11 @@ public class UserService {
     /**
      * Проверка отсутствия пользователя
      *
-     * @param ID проверяемый ID
+     * @param userID проверяемый ID
      * @throws UserNotFoundException если пользователь не найден
      */
-    private void checkUsersAvailability(String ID) throws UserNotFoundException {
-        if (!users.containsKey(ID)) {
+    private void checkUsersAvailability(String userID) throws UserNotFoundException {
+        if (!users.containsKey(userID)) {
             throw new UserNotFoundException();
         }
     }
@@ -65,13 +65,13 @@ public class UserService {
     /**
      * Удаление пользователя
      *
-     * @param userDto удаляемый пользователь
+     * @param userID ID удаляемого пользователя
      */
-    protected void removeUser(UserDto userDto) {
+    protected void removeUser(String userID) {
         try {
-            checkUsersAvailability(userDto.getID());
-            users.remove(userDto.getID());
-            log.info("Пользователь {} успешно удалён из библотеки", userDto);
+            checkUsersAvailability(userID);
+            users.remove(userID);
+            log.info("Пользователь успешно удалён из библотеки");
         } catch (UserNotFoundException e) {
             log.info(e.getMessage());
         }
@@ -80,13 +80,13 @@ public class UserService {
     /**
      * Изменение номера телефона
      *
-     * @param ID       ID пользователя, у которого необходимо изменить номер
+     * @param userID       ID изменяемого пользователя
      * @param newPhone новый номер
      */
-    protected void changeUserPhone(String ID, long newPhone) {
+    protected void changeUserPhone(String userID, long newPhone) {
         try {
-            checkUsersAvailability(ID);
-            UserDto changingUserDto = users.get(ID);
+            checkUsersAvailability(userID);
+            UserDto changingUserDto = users.get(userID);
             changingUserDto.setPhoneNumber(newPhone);
             log.info("Номер телефона успешно изменён!");
         } catch (UserNotFoundException e) {
@@ -97,13 +97,13 @@ public class UserService {
     /**
      * Изменение пользовательского имени
      *
-     * @param ID      ID пользователя, у которого необходимо изменить имя
+     * @param userID      ID пользователя, у которого необходимо изменить имя
      * @param newName новое имя
      */
-    protected void changeUserName(String ID, String newName) {
+    protected void changeUserName(String userID, String newName) {
         try {
-            checkUsersAvailability(ID);
-            UserDto changingUserDto = users.get(ID);
+            checkUsersAvailability(userID);
+            UserDto changingUserDto = users.get(userID);
             changingUserDto.setName(newName);
             log.info("Имя успешно изменено!");
         } catch (UserNotFoundException e) {
@@ -114,13 +114,13 @@ public class UserService {
     /**
      * Изменение пользовательской фамилии
      *
-     * @param ID         ID пользователя, у которого необходимо изменить фамилию
+     * @param userID         ID пользователя, у которого необходимо изменить фамилию
      * @param newSurName новая фамилия
      */
-    protected void changeUserSurname(String ID, String newSurName) {
+    protected void changeUserSurname(String userID, String newSurName) {
         try {
-            checkUsersAvailability(ID);
-            UserDto changingUserDto = users.get(ID);
+            checkUsersAvailability(userID);
+            UserDto changingUserDto = users.get(userID);
             changingUserDto.setSurname(newSurName);
             log.info("Фамилия успешно изменена!");
         } catch (UserNotFoundException e) {

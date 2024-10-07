@@ -1,7 +1,7 @@
 package com.github.vvsslova.exception;
 
 /**
- * Класс описывает исключение, выбрасываемое при попытке удалить несуществующего пользователя
+ * Выбрасывается при попытке удалить несуществующего пользователя
  */
 public class UserNotFoundException extends Exception {
     @Override

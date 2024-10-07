@@ -1,13 +1,12 @@
 package com.github.vvsslova.service;
 
-import com.github.vvsslova.ENUM.BookGenre;
+import com.github.vvsslova.constant.BookGenre;
 import com.github.vvsslova.dto.BookDto;
 import com.github.vvsslova.exception.BookAlreadyExistsException;
 import com.github.vvsslova.exception.BookNotFoundException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.awt.print.Book;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +43,11 @@ public class BookService {
     /**
      * Проверка наличия книги
      *
-     * @param ID ID проверямой книги
+     * @param bookID ID проверямой книги
      * @throws BookAlreadyExistsException если такая книга уже существует
      */
-    private void checkBookAbsence(String ID) throws BookAlreadyExistsException {
-        if (books.containsKey(ID)) {
+    private void checkBookAbsence(String bookID) throws BookAlreadyExistsException {
+        if (books.containsKey(bookID)) {
             throw new BookAlreadyExistsException();
         }
     }
@@ -56,11 +55,11 @@ public class BookService {
     /**
      * Проверка отсутствия книги
      *
-     * @param ID ID проверямой книги
+     * @param bookID ID проверямой книги
      * @throws BookNotFoundException если книга не найдена
      */
-    private void checkBooksAvailability(String ID) throws BookNotFoundException {
-        if (!books.containsKey(ID)) {
+    private void checkBooksAvailability(String bookID) throws BookNotFoundException {
+        if (!books.containsKey(bookID)) {
             throw new BookNotFoundException();
         }
     }
@@ -68,13 +67,13 @@ public class BookService {
     /**
      * Удаление книги
      *
-     * @param bookDto удаляемая книга
+     * @param bookID удаляемая книга
      */
-    protected void removeBook(BookDto bookDto) {
+    protected void removeBook(String bookID) {
         try {
-            checkBooksAvailability(bookDto.getID());
-            books.remove(bookDto.getID());
-            log.info("Книга {} успешно удалена из библиотеки", bookDto);
+            checkBooksAvailability(bookID);
+            books.remove(bookID);
+            log.info("Книга успешно удалена из библиотеки");
         } catch (BookNotFoundException e) {
             log.info(e.getMessage());
         }
@@ -83,13 +82,13 @@ public class BookService {
     /**
      * Изменение автора книги
      *
-     * @param ID        ID книги, у которой необходимо изменить
+     * @param bookID        ID книги, у которой необходимо изменить
      * @param newAuthor новый автор
      */
-    protected void changeBookAuthor(String ID, String newAuthor) {
+    protected void changeBookAuthor(String bookID, String newAuthor) {
         try {
-            checkBooksAvailability(ID);
-            BookDto changingBookDto = books.get(ID);
+            checkBooksAvailability(bookID);
+            BookDto changingBookDto = books.get(bookID);
             changingBookDto.setAuthor(newAuthor);
             log.info("Автор успешно изменён!");
         } catch (BookNotFoundException e) {
@@ -100,13 +99,13 @@ public class BookService {
     /**
      * Изменение названия книги
      *
-     * @param ID       ID книги, у которой необходимо изменить
+     * @param bookID       ID книги, у которой необходимо изменить
      * @param newTitle новое название
      */
-    protected void changeBookTitle(String ID, String newTitle) {
+    protected void changeBookTitle(String bookID, String newTitle) {
         try {
-            checkBooksAvailability(ID);
-            BookDto changingBookDto = books.get(ID);
+            checkBooksAvailability(bookID);
+            BookDto changingBookDto = books.get(bookID);
             changingBookDto.setTitle(newTitle);
             log.info("Название успешно изменено!");
         } catch (BookNotFoundException e) {
@@ -117,13 +116,13 @@ public class BookService {
     /**
      * Изменение жанра книги
      *
-     * @param ID           ID книги, у которой необходимо изменить
+     * @param bookID           ID книги, у которой необходимо изменить
      * @param newBookGenre новый жанр
      */
-    protected void changeBookGenre(String ID, BookGenre newBookGenre) {
+    protected void changeBookGenre(String bookID, BookGenre newBookGenre) {
         try {
-            checkBooksAvailability(ID);
-            BookDto changingBookDto = books.get(ID);
+            checkBooksAvailability(bookID);
+            BookDto changingBookDto = books.get(bookID);
             changingBookDto.setBookGenre(newBookGenre);
             log.info("Жанр успешно изменён!");
         } catch (BookNotFoundException e) {

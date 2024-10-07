@@ -1,13 +1,13 @@
 package com.github.vvsslova.dto;
 
-import com.github.vvsslova.ENUM.BookGenre;
+import com.github.vvsslova.constant.BookGenre;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
 /**
- * Класс описывает шаблон для добавления книги в библиотеку
+ * Шаблон для добавления книги в библиотеку
  */
 @Data
 @Slf4j
