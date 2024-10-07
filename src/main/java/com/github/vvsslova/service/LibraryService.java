@@ -127,7 +127,7 @@ public class LibraryService {
             checkUserBookLending(userID);
             userService.removeUser(userID);
         } catch (UserLendBookException e) {
-            log.info("Этот пользователь взял книги!");
+            log.error("Этот пользователь взял книги!", e);
             Iterator<Journal> journalIterator = lendingJournal.iterator();
             while (journalIterator.hasNext()) {
                 Journal journal = journalIterator.next();

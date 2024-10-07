@@ -36,7 +36,7 @@ public class BookService {
             books.put(bookDto.getID(), bookDto);
             log.info("Книга {} успешно добавлена в библиотеку", bookDto);
         } catch (BookAlreadyExistsException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -75,14 +75,14 @@ public class BookService {
             books.remove(bookID);
             log.info("Книга успешно удалена из библиотеки");
         } catch (BookNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
     /**
      * Изменение автора книги
      *
-     * @param bookID        ID книги, у которой необходимо изменить
+     * @param bookID    ID книги, у которой необходимо изменить
      * @param newAuthor новый автор
      */
     protected void changeBookAuthor(String bookID, String newAuthor) {
@@ -92,14 +92,14 @@ public class BookService {
             changingBookDto.setAuthor(newAuthor);
             log.info("Автор успешно изменён!");
         } catch (BookNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
     /**
      * Изменение названия книги
      *
-     * @param bookID       ID книги, у которой необходимо изменить
+     * @param bookID   ID книги, у которой необходимо изменить
      * @param newTitle новое название
      */
     protected void changeBookTitle(String bookID, String newTitle) {
@@ -109,14 +109,14 @@ public class BookService {
             changingBookDto.setTitle(newTitle);
             log.info("Название успешно изменено!");
         } catch (BookNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
     /**
      * Изменение жанра книги
      *
-     * @param bookID           ID книги, у которой необходимо изменить
+     * @param bookID       ID книги, у которой необходимо изменить
      * @param newBookGenre новый жанр
      */
     protected void changeBookGenre(String bookID, BookGenre newBookGenre) {
@@ -126,7 +126,7 @@ public class BookService {
             changingBookDto.setBookGenre(newBookGenre);
             log.info("Жанр успешно изменён!");
         } catch (BookNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 

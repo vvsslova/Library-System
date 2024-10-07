@@ -34,7 +34,7 @@ public class UserService {
             users.put(userDto.getID(), userDto);
             log.info("Пользователь {} успешно добавлен в библотеку", userDto);
         } catch (UserAlreadyExistsException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -73,7 +73,7 @@ public class UserService {
             users.remove(userID);
             log.info("Пользователь успешно удалён из библотеки");
         } catch (UserNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -90,7 +90,7 @@ public class UserService {
             changingUserDto.setPhoneNumber(newPhone);
             log.info("Номер телефона успешно изменён!");
         } catch (UserNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -107,7 +107,7 @@ public class UserService {
             changingUserDto.setName(newName);
             log.info("Имя успешно изменено!");
         } catch (UserNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -124,7 +124,7 @@ public class UserService {
             changingUserDto.setSurname(newSurName);
             log.info("Фамилия успешно изменена!");
         } catch (UserNotFoundException e) {
-            log.info(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
